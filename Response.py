@@ -3,7 +3,7 @@ from openai import api_key
 
 client = OpenAI(api_key="")
 
-question = input("Entrez votre question : quel est ton nom ")
+question = input("Entrez votre question : ")
 
 completion = client.chat.completions.create(
     model="gpt-3.5-turbo",
