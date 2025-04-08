@@ -22,7 +22,8 @@ triggers = {
     "ouvre youtube": "https://www.youtube.com/",
     "ouvre google": "https://www.google.com/",
     "ouvre facebook": "https://www.facebook.com/",
-    "ouvre amazon": "https://www.amazon.ca/-/fr/"
+    "ouvre amazon": "https://www.amazon.ca/-/fr/",
+    "ouvre omnivox": "https://cstj.omnivox.ca/Login/Account/"
 }
 
 # Commandes spéciales
@@ -42,7 +43,6 @@ def format_response(text, line_length=80):
 
 # Fonction pour ecrire dans le ficher.txt
 def write_to_document(text, path):
-    """Writes the spoken text to a document."""
     mode = "a" if os.path.exists(path) else "w"  # Append if file exists, else create new
     with open(path, mode, encoding="utf-8") as file:
         file.write(text + "\n")
