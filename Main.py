@@ -21,7 +21,8 @@ exit_command = "au revoir"
 triggers = {
     "ouvre youtube": "https://www.youtube.com/",
     "ouvre google": "https://www.google.com/",
-    "ouvre facebook": "https://www.facebook.com/"
+    "ouvre facebook": "https://www.facebook.com/",
+    "ouvre amazon": "https://www.amazon.ca/-/fr/"
 }
 
 # Commandes spéciales
