@@ -41,7 +41,6 @@ document_path = "marcus_notes.txt"
 timeout = 15  # secondes
 max_no_response = 3  # Nombre d'erreurs avant mise en veille
 
-
 # Fonction pour format le texte
 def format_response(text, line_length=80):
     return "\n".join(textwrap.wrap(text, line_length))
@@ -52,12 +51,14 @@ def write_to_document(text, path):
     with open(path, mode, encoding="utf-8") as file:
         file.write(text + "\n")
     print(f"📝 Texte ajouté au document : {path}")
+    speak("J'ai écrit"+text)
 
 # Fonction pour effectuer une recherche Google
 def search_google(query):
     encoded_query = urllib.parse.quote(query)  # Encode la requête pour URL
     url = f"https://www.google.com/search?q={encoded_query}"
     print(f"🔍 Recherche Google : {query}")
+    speak("Ok, je recherche sur google "+ query)
     webbrowser.open(url)
 
 def speak(text):
@@ -76,10 +77,10 @@ async def speak_edge(text):
         pygame.mixer.music.play()
 
         while pygame.mixer.music.get_busy():
-            time.sleep(0.1)
+            time.sleep(0.05)
 
         pygame.mixer.music.unload()
-        time.sleep(0.2)
+        time.sleep(0.05)
         os.remove(temp_path)
 
     except Exception as e:
@@ -105,6 +106,7 @@ try:
             if activation_word in value:
                 print("🚀 Activation détectée ! Mode conversation activé.")
                 print(f"🤖 Marcus Brossoit:\nOui ?")
+                speak("Oui ?")
                 active = True
                 last_activity_time = time.time()
                 no_response_count = 0  # Réinitialise le compteur d'erreurs
@@ -115,6 +117,7 @@ try:
                     # Vérifie si le temps d'inactivité est dépassé
                     if time.time() - last_activity_time > timeout:
                         print("⏳ Temps d'inactivité dépassé, retour en veille...")
+                        speak("Je retourne en veille")
                         active = False
                         break
 
@@ -128,6 +131,7 @@ try:
                         # Vérifie si on doit quitter la conversation
                         if exit_command in value:
                             print("👋 Au revoir ! Marcus retourne en veille.")
+                            speak("Je vais me coucher")
                             active = False
                             break
 
@@ -148,12 +152,13 @@ try:
                                 trigger_matched = True
                             else:
                                 print("❌ Pas de terme de recherche détecté.")
+                                speak("Désolé, j'ai rien trouvé")
 
                         # ✅ Écriture dans un fichier
                         elif write_command in value:
                             print("✍️ Écriture dans le document...")
-
                             print("🗣️ Dis ce que tu veux écrire :")
+                            speak("Ok, dit moi ce que tu veux que j'écrit dans le document")
                             with m as source:
                                 audio = r.listen(source)
 
@@ -184,6 +189,7 @@ try:
                     except sr.UnknownValueError:
                         no_response_count += 1
                         print(f"🤖 Marcus Brossoit:\nJ'ai pas compris... ({no_response_count}/{max_no_response})")
+                        speak("Je comprend pas")
 
                         # Si Marcus ne comprend pas 3 fois, il retourne en veille
                         if no_response_count >= max_no_response:
@@ -198,9 +204,11 @@ try:
 
         except sr.UnknownValueError:
             print(f"🤖 Marcus Brossoit:\nJ'ai pas compris...")
+            speak("J'ai pas compris")
 
         except sr.RequestError as e:
             print(f"🚫 Uh oh! Erreur de requête: {e}")
 
 except KeyboardInterrupt:
     print("\n👋 Au revoir !")
+    speak("Au revoir")
