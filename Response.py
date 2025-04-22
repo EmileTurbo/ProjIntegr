@@ -1,14 +1,29 @@
-import win32com.client
+import edge_tts
+import asyncio
 
+async def speak_edge(text):
+    # Utilise une voix masculine en français canadien
+    communicator = edge_tts.Communicate(text, voice="fr-CA-AntoineNeural")
 
-def list_voices():
-    """List all installed TTS voices, including OneCore voices."""
-    sapi = win32com.client.Dispatch("SAPI.SpVoice")
-    tokens = sapi.GetVoices()
+    try:
+        # Sauvegarde le son dans un fichier MP3
+        await communicator.save("output.mp3")
 
-    for i, token in enumerate(tokens):
-        print(f"Voice {i}: {token.GetDescription()}")
+        # Lire le fichier MP3 avec pygame (tu peux aussi utiliser un autre lecteur)
+        import pygame
+        pygame.mixer.init()
+        pygame.mixer.music.load("output.mp3")
+        pygame.mixer.music.play()
 
+        # Attendre que la musique finisse
+        while pygame.mixer.music.get_busy():
+            await asyncio.sleep(0.1)
 
-# List all voices, including hidden ones
-list_voices()
+        pygame.mixer.music.unload()
+        print("🎤 Voix jouée avec succès !")
+
+    except Exception as e:
+        print(f"⚠️ Erreur : {e}")
+
+# Teste la fonction
+asyncio.run(speak_edge("Bonjour, je suis Marcus Brossoit."))

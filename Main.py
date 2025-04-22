@@ -5,6 +5,10 @@ import textwrap
 import os
 import urllib.parse
 import time
+import asyncio
+import edge_tts
+import pygame
+import tempfile
 
 # OpenAI setup
 client = OpenAI(api_key="")
@@ -37,6 +41,7 @@ document_path = "marcus_notes.txt"
 timeout = 15  # secondes
 max_no_response = 3  # Nombre d'erreurs avant mise en veille
 
+
 # Fonction pour format le texte
 def format_response(text, line_length=80):
     return "\n".join(textwrap.wrap(text, line_length))
@@ -54,6 +59,31 @@ def search_google(query):
     url = f"https://www.google.com/search?q={encoded_query}"
     print(f"🔍 Recherche Google : {query}")
     webbrowser.open(url)
+
+def speak(text):
+    asyncio.run(speak_edge(text))
+
+async def speak_edge(text):
+    try:
+        # Utilise la voix masculine en français canadien
+        communicate = edge_tts.Communicate(text=text, voice="fr-CA-AntoineNeural")
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
+            temp_path = tmp_file.name
+        await communicate.save(temp_path)
+
+        pygame.mixer.init()
+        pygame.mixer.music.load(temp_path)
+        pygame.mixer.music.play()
+
+        while pygame.mixer.music.get_busy():
+            time.sleep(0.1)
+
+        pygame.mixer.music.unload()
+        time.sleep(0.2)
+        os.remove(temp_path)
+
+    except Exception as e:
+        print(f"⚠️ Erreur avec edge-tts : {e}")
 
 try:
     print("Un moment de silence...")
@@ -145,6 +175,7 @@ try:
                             response = completion.choices[0].message.content
                             formatted_response = format_response(response, line_length=80)
                             print(f"🤖 Marcus Brossoit:\n{formatted_response}")
+                            speak(response)
 
                         # 🔄 Réinitialise le timer et le compteur d'erreurs
                         last_activity_time = time.time()
